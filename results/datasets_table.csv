@@ -1,0 +1,10 @@
+set,label,kind,dT_drybulb_K,dT_dewpoint_K,dT_wetbulb_K,range_drybulb_K,pi_ac_pct,pi_wc_pct,eff_ac_pct,eff_wc_pct,days_ac_beats_battery_pct,days_wc_beats_battery_pct
+NORMALS,Normals-based typical year,synthetic,7.261,0.0,1.742,13.863,24.587,3.54,77.895,93.686,0.0,100.0
+REAN_2022,Reanalysis 2022,reanalysis,7.175,-6.041,-1.496,12.217,23.752,-3.013,78.59,100.129,8.696,99.457
+REAN_2023,Reanalysis 2023,reanalysis,7.757,-6.475,-1.769,13.027,25.228,-3.476,77.581,100.576,1.63,100.0
+OMAA_2022,Abu Dhabi airport 2022,measured,5.341,-4.546,-1.119,10.541,16.851,-2.267,83.202,99.374,29.891,100.0
+OMAA_2023,Abu Dhabi airport 2023,measured,5.145,-4.777,-1.494,10.277,15.778,-2.901,83.895,99.994,35.326,100.0
+OMAD_2022,Abu Dhabi island 2022,measured,4.847,-4.681,-1.519,9.293,15.081,-3.017,84.443,100.126,40.217,100.0
+OMAD_2023,Abu Dhabi island 2023,measured,4.712,-4.546,-1.505,9.207,14.441,-2.937,84.879,100.032,52.174,100.0
+OMDB_2023,Dubai airport 2023,measured,3.641,-1.58,-0.053,7.995,10.776,-0.049,87.626,97.126,85.87,100.0
+OMSJ_2023,Sharjah airport 2023,measured,5.485,-2.104,0.284,10.353,17.258,0.686,82.897,96.435,32.065,100.0

@@ -14,10 +14,13 @@
 \setlist{nosep,leftmargin=1.4em}
 \newcommand{\C}{\,^\circ\mathrm{C}}
 \newcommand{\TEAMNAME}{\textbf{Team Bueno}\\ Evan Tobias \quad$\cdot$\quad Krishna Gaur \quad$\cdot$\quad James Joshua}
+% Every number quoted below is written by scripts/run_analysis.py into numbers.tex and the table_*.tex files.
+\input{numbers}
 
 \title{\vspace{-1.2cm}\textbf{The Carnot Penalty}\\[2pt]
 \large When should the Gulf make its cold? A thermodynamic model of solar-following cold storage in Abu Dhabi}
-\author{\TEAMNAME \\ \small Carnot 2026 \quad$\cdot$\quad Afkar 2026, IIT Delhi -- Abu Dhabi \quad$\cdot$\quad 13 November 2026}
+\author{\TEAMNAME \\ \small Carnot 2026 \quad$\cdot$\quad Afkar 2026, IIT Delhi -- Abu Dhabi \quad$\cdot$\quad 14 November 2026\\
+\small Revised version. Section~\ref{sec:changed} lists what changed since the submission of 13 November.}
 \date{}
 
 \begin{document}
@@ -26,19 +29,22 @@
 \begin{abstract}\noindent
 The UAE grid is filling up with midday solar power, while most of its summer electricity goes to cooling
 that is still needed long after sunset. An obvious idea is to run chillers at solar noon and store the cold
-in a water tank. But noon is also when the outdoor heat sink is hottest, so every chiller is then at its
+in a water tank. But noon is also when the outdoor air is hottest, so a chiller should then be at its
 \emph{least} efficient. We call the extra electricity this costs the \textbf{Carnot penalty}~$\pi$ and show that,
-for a chiller whose work per unit of cold is linear in the sink temperature, it has an exact closed form:
-$\pi=\Delta T_{\text{sink}}/L_{\text{night}}$, the solar-minus-night difference in heat-sink temperature divided by
+for a chiller whose work per unit of cold is linear in the heat-sink temperature, it has an exact closed form:
+$\pi=\Delta T_{\text{sink}}/L_{\text{night}}$, the solar-minus-night difference in sink temperature divided by
 the night-time temperature lift. Two one-line decision rules follow: a cold tank beats a battery on energy if
 $\pi<\eta_{\text{tank}}/\eta_{\text{batt}}-1$ (14\%), and solar-following cold storage cuts emissions if solar-hour
 electricity is cleaner than night electricity by a factor $r^*=\eta_{\text{tank}}/(1+\pi)$.
-We calibrate the chiller model on 157 real machines and evaluate it over an 8760-hour typical year for Abu Dhabi.
-\textbf{Result:} for air-cooled chillers $\pi\approx18.5\%$, so a battery is the better store; for water-cooled
-(district-cooling) plants $\pi\approx3.5\%$, so a simple chilled-water tank returns about 94\% of the solar electricity
-put into it, better than a lithium-ion battery (85\%). The reason is psychrometric: at Gulf humidity the wet-bulb
-temperature moves only 0.24~K for every 1~K of dry-bulb swing. A 20\,000-draw Monte Carlo gives the cold tank a
-91\% chance of beating the battery for water-cooled plants and 21\% for air-cooled ones.
+We calibrate the chiller model on \NMachines{} real machines (\NWC{} water-cooled, \NAC{} air-cooled) and evaluate it
+on \NDays{} measured days: four station-years of hourly airport observations in Abu Dhabi.
+\textbf{Result:} an air-cooled chiller pays $\pi\approx$ \PiAC\%, so a cold tank returns \EffRoundAC\% of the solar
+electricity put into it, level with a lithium-ion battery (85\%). A water-cooled (district-cooling) plant pays
+nothing: $\pi\approx$ \PiWC\%, a small bonus, so its tank returns about \EffRoundWC\% and beats the battery on every
+day of the cooling season. The reason is in the humidity. A cooling tower rejects heat to the wet-bulb
+temperature, which follows the dry-bulb only weakly (\DampA~K per K) and the dew point strongly (\DampB~K per K),
+and in Abu Dhabi the dew point falls by \DTdpAbs~K in the solar hours. The first version of this model, built on a
+synthetic year from monthly normals, missed that effect; testing it against measurements is what found it.
 \end{abstract}
 
 \section{The problem and why it matters}
@@ -55,11 +61,19 @@ the UAE already use such tanks for peak shaving). The second route looks cheaper
 chiller to work when the outdoor air is hottest. \textbf{Our question:} how large is that thermodynamic handicap in
 Abu Dhabi, what does it depend on, and when is storing cold still the better choice?
 
-\paragraph{What is new.} (i) We define the Carnot penalty and prove an exact closed form for it (Eq.~\ref{eq:pi});
+\paragraph{Related work and what is new.} Storing solar electricity as cold instead of in batteries has been compared
+before: for stand-alone photovoltaic chillers~\cite{wang2020}, for photovoltaic air-conditioning with phase-change
+storage in different climates~\cite{wangdennis}, for off-grid cooling in the tropics on life-cycle
+cost~\cite{luerssen}, and for the power system of Qatar with ice storage~\cite{alaali}. These are numerical studies
+of particular systems. Our contribution is different in kind:
+(i) we define the Carnot penalty and prove an exact closed form for it (Eq.~\ref{eq:pi});
 (ii) we derive two one-line decision rules, cold tank versus battery (Eq.~\ref{eq:batt}) and solar-following versus
-night production (Eq.~\ref{eq:clean}); (iii) we explain, with a psychrometric damping factor, why water-cooled plants
-almost escape the penalty while air-cooled chillers do not; (iv) we calibrate on 157 real chillers and show that the
-textbook ``constant fraction of Carnot'' model overstates the temperature sensitivity of real machines by about 65\%.
+night production (Eq.~\ref{eq:clean});
+(iii) we show with measured weather that the heat sink of a cooling tower in Abu Dhabi is \emph{cooler} in the solar
+hours than at night, explain it with a two-term response of the wet-bulb temperature (Eq.~\ref{eq:twb}), and so find
+that district-cooling plants pay no thermodynamic price for following the sun;
+(iv) we calibrate both chiller classes on \NMachines{} real machines and show that the textbook ``constant fraction
+of Carnot'' model misjudges their temperature sensitivity in opposite directions.
 We are not aware of a previous statement of (i)--(iii) in this form. This is new work prepared for this competition;
 nothing here has been published before.
 
@@ -77,17 +91,25 @@ w(T_s)\equiv\frac{1}{\mathrm{COP}(T_s)}=\frac{L_0+(T_s-T_0)}{\mathrm{COP}_0\,L_0
 \end{equation}
 where $\mathrm{COP}_0$ is the COP at a reference sink temperature $T_0$ and $L_0$ is the \emph{effective lift} at that
 point. The model has one shape parameter, $L_0$, with a direct meaning: the COP falls by $s=1/L_0$ per kelvin of
-sink temperature.
+sink temperature. $L_0$ is fitted to real machines (Sec.~\ref{sec:cal}); it is not a physical temperature difference.
 
 \subsection{Heat sinks: dry-bulb and wet-bulb}
 The wet-bulb temperature $T_{wb}$ is obtained from dry-bulb $T$ and humidity ratio $W$ by solving the
 adiabatic-saturation energy balance~\cite{ashrae},
 $W=\dfrac{(2501-2.326\,T_{wb})\,W_s(T_{wb})-1.006\,(T-T_{wb})}{2501+1.86\,T-4.186\,T_{wb}}$,
-by bisection, with saturation pressure from the Magnus form~\cite{magnus}. Differentiating this balance at constant
-moisture gives the \emph{psychrometric damping factor}
-$\partial T_{wb}/\partial T\approx\big[1+(h_{fg}/c_p)\,\mathrm{d}W_s/\mathrm{d}T\big]^{-1}$, which equals \textbf{0.24}
-at the mean cooling-season state of Abu Dhabi (32.6$\C$, dew point 24.7$\C$): only a quarter of any dry-bulb swing
-reaches a cooling tower.
+by bisection, with saturation pressure from the Magnus form~\cite{magnus}. The moisture content is set by the dew
+point $T_d$ through $W=W_s(T_d)$. Differentiating the balance gives the response of the wet-bulb temperature to
+changes in the dry-bulb and in the dew point:
+\begin{equation}
+\Delta T_{wb}\approx a\,\Delta T+b\,\Delta T_d,\qquad
+a=\Big[1+\frac{h_{fg}}{c_p}\,W_s'(T_{wb})\Big]^{-1},\qquad
+b=(1-a)\,\frac{W_s'(T_d)}{W_s'(T_{wb})},
+\label{eq:twb}
+\end{equation}
+with $h_{fg}$ the latent heat of water, $c_p$ the specific heat of moist air and $W_s'$ the slope of the saturation
+humidity ratio. At the mean cooling-season state of Abu Dhabi (\TMean$\C$, dew point \TdMean$\C$) this gives
+$a=$ \textbf{\DampA} and $b=$ \textbf{\DampB}: a cooling tower sees only a quarter of any dry-bulb swing, but more
+than half of any dew-point swing.
 
 \subsection{The Carnot penalty}
 Let cold be \emph{made} with hourly weights $m_t$ (we use the solar irradiance, so production follows the sun) and
@@ -99,9 +121,10 @@ the relative extra electricity for making cold at solar hours instead of on dema
 =\frac{\bar T_m-\bar T_u}{L_0+\bar T_u-T_0}=\frac{\Delta T_{\text{sink}}}{L_{\text{night}}}\;}
 \label{eq:pi}
 \end{equation}
-This is an identity, not an approximation: the code confirms it to $10^{-13}$ on all 365 days (Fig.~\ref{fig:cf}a).
-If charging also needs colder water (evaporator lowered by $\delta$, e.g.\ $\delta\approx12$~K for ice), the numerator
-gains $\delta$.
+This is an identity, not an approximation: the code confirms it to better than $10^{-12}$ on all \NDays{} measured
+days (Fig.~\ref{fig:cf}a). Nothing forces $\pi$ to be positive: if the sink is cooler in the solar hours than at
+night, following the sun \emph{saves} electricity. If charging also needs colder water (evaporator lowered by
+$\delta$, e.g.\ $\delta\approx12$~K for ice), the numerator gains $\delta$.
 
 \subsection{Cold tank or battery?}
 To deliver one unit of night cooling, three routes need the following electricity ($\eta_t$: tank round-trip
@@ -114,7 +137,7 @@ $\eta_{\text{eff}}=\eta_t/(1+\pi)$, and
 \iff\Delta T_{\text{sink}}<\Delta T^*=\pi^*L_{\text{night}} .
 \label{eq:batt}
 \end{equation}
-With $\eta_t=0.97$ and $\eta_b=0.85$~\cite{atb}, $\pi^*=14.1\%$.
+With $\eta_t=0.97$ and $\eta_b=0.85$~\cite{atb}, $\pi^*=$ \PiStar\%.
 If night electricity carries emissions (or price) $e_n$ and solar-hour electricity $e_s$, shifting production to the
 sun reduces emissions when
 \begin{equation}
@@ -128,205 +151,269 @@ r\equiv\frac{e_s}{e_n}<r^*=\frac{\eta_t}{1+\pi},\qquad\text{saving}=1-\frac{r}{r
 \toprule
  & Assumption & Justification / how it is tested\\
 \midrule
-A1 & $1/\mathrm{COP}$ is linear in sink temperature with one effective lift $L_0$ per technology & Fitted to 157 real machines (Sec.~\ref{sec:cal}); median curve error 2.6\%, out-of-sample 2.3\%\\
+A1 & $1/\mathrm{COP}$ is linear in sink temperature with one effective lift $L_0$ per technology & Fitted to \NWC{} water-cooled and \NAC{} air-cooled machines (Sec.~\ref{sec:cal}); median curve errors \ErrClassWC\% and \ErrClassAC\%, out-of-sample \ErrTestWC\% and \ErrTestAC\%\\
 A2 & Chillers run at full load & Storage exists precisely so that chillers can run flat out; part-load curves ignored\\
 A3 & Fixed approaches (cooling tower 4~K) & A constant offset cancels in $\Delta T_{\text{sink}}$\\
 A4 & Stratified chilled-water tank, same supply temperature; $\eta_t=0.97$ & Tested: $\eta_t$ 0.90--0.99, charging water 2~K colder, ice ($\delta=12$~K)\\
 A5 & Battery round-trip efficiency $\eta_b=0.85$~\cite{atb} & Monte Carlo range 0.80--0.90\\
-A6 & Typical year built from monthly normals with the ASHRAE diurnal profile; dew point constant within a day & No hourly station record was accessible (Sec.~\ref{sec:lim}); tested: daily range $\pm20\%$, afternoon dew point $\pm3$~K\\
+A6 & Weather is the measured record of two Abu Dhabi airports, 2022 and 2023 & Tested: each station and each year separately; Dubai and Sharjah as a regional check (Table~\ref{tab:sets})\\
 A7 & Night cooling load uniform over the dark hours & Tested: load weighted by degree-hours above 18$\C$\\
-A8 & Production follows clear-sky irradiance~\cite{haurwitz} & Tested: flat 09--15~h charging window\\
+A8 & Production follows the irradiance of a reanalysis~\cite{openmeteo} & Tested: clear-sky model~\cite{haurwitz}; flat 09--15~h charging window\\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \section{Data and calibration}\label{sec:cal}
-\paragraph{Chillers.} EnergyPlus ships a library of electric chillers whose performance curves were fitted to
-manufacturers' data~\cite{eplus,hydeman}. We read all 162 \texttt{Chiller:Electric:EIR} objects (all water-cooled),
-keep the 157 with physically sensible curves, and for each compute the measured sensitivity
-$s=-\mathrm{d}\ln\mathrm{COP}/\mathrm{d}T$ at its reference point. The median is \textbf{2.30\,\%/K} (interquartile range
-1.73--2.99), i.e.\ $L_0=43.6$~K (95\% bootstrap interval 41.0--47.6~K). A textbook constant-efficiency Carnot fraction
-using the \emph{physical} lift of these machines (26~K) would predict 3.8\,\%/K, about 65\% too sensitive
-(Fig.~\ref{fig:cal}): real chillers have fixed internal losses, so their second-law efficiency improves as the lift
-grows~\cite{gordon}. We therefore keep the linear form of Eq.~\eqref{eq:w} but use the measured effective lift.
-With a single $L_0$ for all machines the model reproduces each machine's COP curve from 8~K below to 10~K above its
-reference with a median RMS error of 2.6\% (90th percentile 6.3\%); with each machine's own $L_0$ the error is 1.3\%,
-which tests the functional form itself. Calibrating on a random half (78 machines) and testing on the other 79 gives
-$L_0=44.2$~K and a median error of 2.3\%.
-The library has no air-cooled machines; for that class we use standard design values (COP 3.0 at 35$\C$ ambient,
-condensing 14~K above ambient, lift 45~K, i.e.\ 2.2\,\%/K) and give it the same relative machine-to-machine spread
-in the uncertainty analysis. This is the least validated parameter in the study.
+\paragraph{Chillers.} EnergyPlus ships libraries of electric chillers whose performance curves were fitted to
+manufacturers' data~\cite{eplus,hydeman}. For water-cooled machines we read all \NTotalWC{}
+\texttt{Chiller:Electric:EIR} objects of \texttt{Chillers.idf}, keep the \NWC{} with physically sensible curves, and
+for each compute the measured sensitivity $s=-\mathrm{d}\ln\mathrm{COP}/\mathrm{d}T$ at its reference point. The
+median is \textbf{\SensWC\,\%/K} (interquartile range \SensLoWC--\SensHiWC), i.e.\ $L_0=$ \LiftWC~K (95\% bootstrap
+interval \LiftLoWC--\LiftHiWC~K). For air-cooled machines the same reader takes the \NAC{} chillers of
+\texttt{AirCooledChiller.idf}: the median is \textbf{\SensAC\,\%/K} (\SensLoAC--\SensHiAC), i.e.\ $L_0=$ \LiftAC~K
+(\LiftLoAC--\LiftHiAC~K), with a reference COP of \CopRefAC{} at \TRefAC$\C$ outdoor air.
+
+A textbook constant-efficiency Carnot fraction using the \emph{physical} lift of the water-cooled machines
+(\LiftPhysWC~K) would predict \SensIdealWC\,\%/K, about \IdealOverWC\% too sensitive: real chillers have fixed
+internal losses, so their second-law efficiency improves as the lift grows~\cite{gordon}. For the air-cooled machines
+the same textbook estimate (condensing 14~K above the outdoor air, lift \LiftPhysAC~K) gives \SensIdealAC\,\%/K, about
+\IdealUnderAC\% too \emph{insensitive} (Fig.~\ref{fig:cal}). We therefore keep the linear form of Eq.~\eqref{eq:w} but
+use the measured effective lifts. Evaluated with physical temperatures (condensing 7~K above the
+entering water or 14~K above the outdoor air, evaporating 1.5~K below the chilled water), the fitted machines run at
+\SecondLawLoWC--\SecondLawHiWC\% (water-cooled) and \SecondLawLoAC--\SecondLawHiAC\% (air-cooled) of the Carnot COP over
+every measured hour, so the second law is respected.
+With a single $L_0$ per class the model reproduces each machine's COP curve from 8~K below to 10~K above its
+reference with a median RMS error of \ErrClassWC\% (water-cooled; 90th percentile \ErrClassHiWC\%) and \ErrClassAC\%
+(air-cooled; \ErrClassHiAC\%); with each machine's own $L_0$ the errors are \ErrOwnWC\% and \ErrOwnAC\%, which tests
+the functional form itself. Calibrating on a random half and testing on the other half gives $L_0=$ \LiftTrainWC~K
+with a median error of \ErrTestWC\% (\NTrainWC{} machines to fit, \NTestWC{} to test) and $L_0=$ \LiftTrainAC~K with
+\ErrTestAC\% (\NTrainAC{} and \NTestAC).
 
 \begin{figure}[h]\centering
-\includegraphics[width=0.93\linewidth]{fig2_chiller_calibration.pdf}
-\caption{Calibration on real machines. (a) COP of 157 library chillers against condenser temperature (grey), the ideal
-Carnot-fraction prediction (dashed) and the calibrated model (blue). (b) Distribution of measured sensitivity.}
+\includegraphics[width=\linewidth]{fig2_chiller_calibration.pdf}
+\caption{Calibration on real machines. (a, b) COP of the library chillers against heat-sink temperature (grey), the
+ideal Carnot-fraction prediction (dashed) and the calibrated model. (c) Distribution of measured sensitivity.}
 \label{fig:cal}
 \end{figure}
 
-\paragraph{Weather.} Public hourly archives could not be reached from the machine used for this work, so we built an
-8760-hour typical year from three published ingredients: monthly normals of mean daily maximum, minimum and relative
-humidity for Abu Dhabi (36 numbers, listed in \texttt{data/}); the ASHRAE design-day diurnal temperature
-profile~\cite{ashrae}; and the Haurwitz clear-sky irradiance model~\cite{haurwitz} with Cooper's declination
-formula~\cite{cooper}. The generator is \texttt{scripts/make\_weather.py}; any measured 8760-hour file can replace it
-without touching the model. Fig.~\ref{fig:sinks} shows the two heat sinks: over May--October the dry-bulb has a mean
-diurnal range of 13.9~K but the wet-bulb only 3.3~K.
+\paragraph{Weather.} Hourly dry-bulb and dew-point temperatures come from the routine airport weather reports
+archived by the Iowa Environmental Mesonet~\cite{iem}: Abu Dhabi International Airport, on the mainland, and
+Al Bateen airport, on Abu Dhabi island, for 2022 and 2023. That is \NDays{} days, \NSeasonDays{} of them in the
+cooling season (May--October). In no station-year are more than \MaxMissing{} of the 8760 hours missing (longest gap
+\MaxGap~h); they are interpolated. Airports do not report irradiance, which the model needs only as hourly weights,
+so the weights come from a reanalysis~\cite{openmeteo}; a clear-sky model gives the same answer
+(Sec.~\ref{sec:unc}). Dubai and Sharjah airports (2023) serve as a regional check.
+Fig.~\ref{fig:sinks} shows what the record says. Over May--October the dry-bulb is \DTdb~K warmer in the solar hours
+than at night. The dew point is \DTdpAbs~K \emph{lower}: the surface air dries out in the heat of the day and the
+humid Gulf air returns in the evening (we report this observation; we do not model its cause). The island station
+shows the same drop as the mainland airport (Table~\ref{tab:sets}). By
+Eq.~\eqref{eq:twb} the wet-bulb should then change by
+\DampA$\,\times\,$\DTdb$\;+\;$\DampB$\,\times\,$(\DTdp) $=$ \DTwbTwoTerm~K; computed hour by hour it is \DTwb~K. The
+heat sink of a cooling tower is coolest when the sun is up.
 
 \begin{figure}[h]\centering
-\includegraphics[width=0.9\linewidth]{fig1_heat_sinks.pdf}
-\caption{Mean daily cycle of the two heat sinks in the Abu Dhabi typical year (bands: 10--90\% of days) with
-clear-sky irradiance (yellow). The air-cooled sink is hottest exactly when the sun is strongest; the water-cooled sink
-barely moves.}
+\includegraphics[width=0.92\linewidth]{fig1_heat_sinks.pdf}
+\caption{Mean daily cycle of the two heat sinks and of the dew point in the measured Abu Dhabi record (bands: 10--90\%
+of days), with irradiance (yellow). Dashed: the wet-bulb of the synthetic year used in the first version of this
+report, which rises at midday because its dew point was held constant.}
 \label{fig:sinks}
 \end{figure}
 
 \section{Results}
-\begin{center}\small
+\begin{table}[h]\centering\small
 \begin{tabular}{@{}lcc@{}}
 \toprule
-Cooling season (May--Oct) unless stated & Air-cooled & Water-cooled\\
+Cooling season (May--Oct), four measured station-years pooled & Air-cooled & Water-cooled\\
 \midrule
 Heat sink & dry-bulb & wet-bulb\\
-Solar-weighted minus night sink temperature, $\Delta T_{\text{sink}}$ (K) & 7.3 & 1.7\\
-Night lift $L_{\text{night}}$ (K) & 39.4 & 49.6\\
-\textbf{Carnot penalty $\pi$} (\%) & \textbf{18.5} & \textbf{3.5}\\
-Carnot penalty, whole year (\%) & 19.8 & 4.3\\
-Effective round-trip efficiency of solar-made cold, $\eta_t/(1+\pi)$ (\%) & 81.9 & 93.7\\
-Break-even swing $\Delta T^*$ against an 85\% battery (K) & 5.6 & 7.0\\
-Beats the battery on energy? & no & yes\\
-Electricity per MWh of night cooling: grid at night (kWh) & 292 & 176\\
-\quad solar $\to$ battery $\to$ chiller (kWh) & 343 & 207\\
-\quad solar $\to$ chiller $\to$ cold tank (kWh) & 356 & 187\\
-Break-even cleanliness ratio $r^*$ & 0.82 & 0.94\\
-Monte Carlo probability that the tank beats the battery & 21\% & 91\%\\
+Solar-weighted minus night sink temperature, $\Delta T_{\text{sink}}$ (K) & \SwingAC & \SwingWC\\
+Night lift $L_{\text{night}}$ (K) & \LiftNightAC & \LiftNightWC\\
+\textbf{Carnot penalty $\pi$} (\%) & \textbf{\PiAC} & \textbf{\PiWC}\\
+\quad lowest and highest of the four station-years & \PiMinAC{} to \PiMaxAC & \PiMinWC{} to \PiMaxWC\\
+Carnot penalty, whole year (\%) & \PiYearAC & \PiYearWC\\
+Effective round-trip efficiency of solar-made cold, $\eta_t/(1+\pi)$ (\%) & \EffAC & \EffWC\\
+Break-even swing $\Delta T^*$ against an 85\% battery (K) & \SwingStarAC & \SwingStarWC\\
+Days on which the tank beats the battery (\%) & \DaysAC & \DaysWC\\
+Electricity per MWh of night cooling: grid at night (kWh) & \RouteGridAC & \RouteGridWC\\
+\quad solar $\to$ battery $\to$ chiller (kWh) & \RouteBattAC & \RouteBattWC\\
+\quad solar $\to$ chiller $\to$ cold tank (kWh) & \RouteTankAC & \RouteTankWC\\
+Break-even cleanliness ratio $r^*$ & \RStarAC & \RStarWC\\
+Monte Carlo probability that the tank beats the battery & \McWinsAC\% & \McWinsWC\%\\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{Base case. $\pi$ and the efficiency are means of the daily values.}
+\label{tab:base}
+\end{table}
 
 \begin{figure}[h]\centering
 \includegraphics[width=0.97\linewidth]{fig3_penalty_by_month.pdf}
-\caption{(a) Carnot penalty by month with the battery break-even line $\pi^*=14\%$. (b) Effective round-trip
-efficiency of storing solar electricity as cold, against a lithium-ion battery.}
+\caption{(a) Carnot penalty by month (bars: mean of the four station-years; whiskers: lowest and highest
+station-year). (b) Effective round-trip efficiency of storing solar electricity as cold, against a lithium-ion
+battery.}
 \label{fig:month}
+\end{figure}
+
+\paragraph{Interpretation.}
+\emph{Water-cooled plants pay no penalty.} Making cold in the solar hours costs a district-cooling plant
+\PiAbsWC\% \emph{less} electricity than making it at night. The penalty is negative from March to November and at most
+\PiMonthMaxWC\% in winter (Fig.~\ref{fig:month}). A chilled-water tank then returns \EffWC\% of the solar electricity
+put into it: delivering a MWh of night cooling takes \RouteTankWC~kWh of solar electricity through the tank against
+\RouteBattWC~kWh through a lithium-ion battery, \SavingWC\% less. The tank itself is plain water: storing 1~MWh of cold
+takes $V=Q/(\rho c_p\Delta T)\approx107$~m$^3$ for an 8~K supply--return difference. Since $r^*=$ \RStarWC,
+solar-following operation cuts emissions as soon as solar-hour electricity is any cleaner than night electricity.
+
+\emph{Air-cooled chillers tie with the battery.} Their sink is \SwingAC~K hotter in the solar hours, the penalty is
+\PiAC\%, and the tank returns \EffAC\%, \BattMinusTankAC{} points below the battery; it wins on \DaysAC\% of
+cooling-season days. The measured swing sits just above the break-even swing $\Delta T^*=$ \SwingStarAC~K. On
+energy alone the two stores are level within the uncertainty of their own efficiencies (Sec.~\ref{sec:unc}), so for a
+building with air-cooled chillers the choice rests on cost and lifetime, which this model does not cover.
+
+\emph{Why the difference?} Both machine types lose 2--3\% of COP per kelvin; what differs is the sink. The dry-bulb
+has to rise when the sun shines. The wet-bulb does not, because the same hours bring drier air (Eq.~\ref{eq:twb}).
+
+\emph{Along the coast.} Table~\ref{tab:sets} and Fig.~\ref{fig:sets} apply the same model to every weather data set
+we have. The four Abu Dhabi station-years agree closely. In Dubai and Sharjah the midday drop of the dew point is
+smaller (\DTdpDubai{} and \DTdpSharjah~K), and the water-cooled penalty is zero in Dubai and \PiWCSharjah\% in
+Sharjah: still far below the battery break-even. The air-cooled penalty ranges from \PiACDubai\% in Dubai to \PiACSharjah\% in Sharjah,
+on both sides of the break-even, so for air-cooled plant the answer depends on the site.
+
+\emph{Chilled water, not ice.} Lowering the evaporator by 12~K to make ice cuts the effective efficiency to
+\IceWC\% (water-cooled) and \IceAC\% (air-cooled). Ice buys a smaller tank at the price of about \IceLossWC{} points of
+efficiency.
+
+\begin{table}[h]\centering\small
+\input{table_datasets}
+\caption{The same calibrated chillers on every weather data set. The synthetic year is the one used in the first
+version of this report; the reanalysis is the Open-Meteo product for the Abu Dhabi airport grid cell.}
+\label{tab:sets}
+\end{table}
+
+\begin{figure}[h]\centering
+\includegraphics[width=0.9\linewidth]{fig6_all_datasets.pdf}
+\caption{Carnot penalty for every weather data set of Table~\ref{tab:sets}. The synthetic year and the reanalysis
+overstate the air-cooled penalty, and the synthetic year has the wrong sign for the water-cooled one.}
+\label{fig:sets}
 \end{figure}
 
 \begin{figure}[h]\centering
 \includegraphics[width=0.86\linewidth]{fig4_closed_form_and_breakeven.pdf}
-\caption{(a) The closed form of Eq.~\eqref{eq:pi} against the hour-by-hour calculation for all 365 days.
+\caption{(a) The closed form of Eq.~\eqref{eq:pi} against the hour-by-hour calculation for all \NDays{} measured days.
 (b) Emissions saved on shifted cooling as a function of how clean solar-hour electricity is relative to night
 electricity (Eq.~\ref{eq:clean}).}
 \label{fig:cf}
 \end{figure}
 
-\paragraph{Interpretation.}
-\emph{Water-cooled plants almost escape the penalty.} Making cold at solar hours costs a district-cooling plant only
-3.5\% more electricity than making it at night (2.9--4.5\% across the months, Fig.~\ref{fig:month}). A chilled-water tank
-is then a 94\% efficient ``battery'', and delivering a MWh of night cooling takes 187~kWh of solar electricity instead of
-207~kWh through a lithium-ion battery, about 9\% less. The tank itself is plain water: storing 1~MWh of cold takes
-$V=Q/(\rho c_p\Delta T)\approx107$~m$^3$ for an 8~K supply--return difference. Solar-following operation already cuts emissions when
-solar-hour electricity is just 6\% cleaner than night electricity ($r^*=0.94$).
-\emph{Air-cooled chillers do not escape.} Their sink is 7.3~K hotter in the solar hours, the penalty is 18.5\%, and the
-tank returns only 82\%, below the battery. Since $\Delta T_{\text{sink}}=7.3$~K exceeds the break-even swing
-$\Delta T^*=5.6$~K, a battery is the better store on energy, and shifting only pays when solar-hour electricity is at
-least 18\% cleaner.
-\emph{Why the difference?} Both machine types lose about 2.2--2.3\% of COP per kelvin; what differs is the sink.
-Psychrometric damping (0.24) turns a 13.9~K dry-bulb range into a 3.3~K wet-bulb range.
-\emph{Do not make ice.} Lowering the evaporator by 12~K for ice cuts the effective efficiency to 73\% (water-cooled) and
-62\% (air-cooled): chilled water, not ice, is the right store for solar cold.
-
-\section{Uncertainty, sensitivity and verification}
+\section{Uncertainty, sensitivity and verification}\label{sec:unc}
 \begin{figure}[h]\centering
 \includegraphics[width=0.97\linewidth]{fig5_uncertainty.pdf}
 \caption{(a) Monte Carlo distribution of the effective round-trip efficiency (20\,000 draws). (b) One-at-a-time
 sensitivity of the cooling-season efficiency; dotted lines are the base cases (air-cooled red, water-cooled blue).}
 \label{fig:unc}
 \end{figure}
-\paragraph{Monte Carlo.} We drew 20\,000 combinations of: effective lift (bootstrap from the 157 measured machines),
-$\eta_t\sim U(0.90,0.99)$, $\eta_b\sim U(0.80,0.90)$, daily temperature range $\times\,U(0.8,1.2)$ and an afternoon
-dew-point shift $U(-3,+3)$~K. For water-cooled plants the tank beats the battery in 91\% of draws (efficiency 5--95\%
-range 85--97\%, median 91\%); for air-cooled chillers in 21\% of draws (68--89\%, median 80\%).
-\paragraph{Sensitivity.} The least certain input of our weather is the humidity cycle within the day. If afternoons
-are 3~K more humid than nights (strong sea breeze), the water-cooled efficiency falls from 93.7\% to 89.5\%, still above
-the battery; if they are 3~K drier (deep mixing of dry desert air), it rises to 97.6\%. Other tests for the water-cooled
-case: $L_0\pm25\%$ gives 92.8--94.3\%; $\eta_t$ of 0.90--0.99 gives 86.9--95.6\%; degree-hour night load 94.1\%;
-flat 09--15~h window 93.5\%; charging water 2~K colder 89.5\%. Apart from making ice, no single test reverses either conclusion; for air-cooled
-chillers the most favourable test ($L_0+25\%$) reaches 84.8\%, still just below the battery.
-\paragraph{Verification.} Nineteen unit tests cover: saturation pressure against steam tables; wet-bulb against three
-psychrometric-chart points and against the independent Stull formula~\cite{stull}; bounds (dew point $\le T_{wb}\le T$);
-the second law (model COP always below Carnot); $s=1/L_0$; the closed form against brute force; the break-even algebra;
-and the library reader on a hand-made file with a known answer.
+\paragraph{Monte Carlo.} Each of 20\,000 draws takes: the effective lift of one real machine, picked at random from
+the \NWC{} or \NAC{} library machines; $\eta_t\sim U(0.90,0.99)$; $\eta_b\sim U(0.80,0.90)$; and one of the four
+measured station-years. For water-cooled plants the tank beats the battery in \McWinsWC\% of draws (efficiency 5--95\%
+range \McLoWC--\McHiWC\%, median \McMedWC\%); for air-cooled chillers in \McWinsAC\% of draws
+(\McLoAC--\McHiAC\%, median \McMedAC\%). The medians lie below the base case because the sampled tank efficiency
+averages 0.945, against 0.97 in the base case.
+\paragraph{Sensitivity.} Table~\ref{tab:sens} changes one thing at a time. Apart from making ice, no test brings the
+water-cooled tank near the battery's 85\%. The air-cooled tank stays within about two points of the battery under every
+change of weather, machine or load shape; what moves it is the tank itself (its efficiency, or colder charging water).
+
+\begin{table}[h]\centering\small
+\input{table_sensitivity}
+\caption{One-at-a-time sensitivity. Two numbers are the two cases named in the row; one number is the changed case.}
+\label{tab:sens}
+\end{table}
+
+\paragraph{Verification.} Twenty-nine unit tests cover: saturation pressure against steam tables; wet-bulb against
+three psychrometric-chart points and against the independent Stull formula~\cite{stull}; bounds (dew point
+$\le T_{wb}\le T$); the two-term response of Eq.~\eqref{eq:twb} against the full balance and against its analytic
+coefficients; $s=1/L_0$; the closed form against brute force; the break-even algebra; the library reader on a
+hand-made file with a known answer and on both real libraries; and the six station-years (complete, physically
+bounded, in local time). The analysis itself stops if a fitted chiller would exceed the Carnot COP in any measured
+hour.
+
+\section{What testing against measurements changed}\label{sec:changed}
+The version of this report submitted on 13 November used a synthetic typical year, built from monthly climate normals
+with the dew point held constant through the day, and design values for the air-cooled chiller. It gave
+$\pi=$ \FirstPiAC\% for air-cooled and \FirstPiWC\% for water-cooled plants. Three things changed when the model met
+measurements.
+\begin{itemize}
+\item \textbf{The humidity cycle.} The measured dew point falls by \DTdpAbs~K in the solar hours; the synthetic year
+had no such cycle. This is what turns the water-cooled penalty from \FirstPiWC\% into a bonus.
+\item \textbf{The nights.} The daily maxima of the normals table we had used are on average \NormTmaxDiff~K below
+the 2022--2023 airport record, but its daily minima are \NormTminDiff~K below it (\NormTminDiffLo--\NormTminDiffHi~K
+by month). The synthetic year therefore had too large a day--night swing: \FirstDTdb~K instead of \DTdb~K. With the
+measured weather alone, the air-cooled penalty would fall from \FirstPiAC\% to \FirstPiACMeasuredWeather\%.
+\item \textbf{The air-cooled machines.} Real ones lose \SensAC\,\%/K, about \DesignUnderAC\% more than the 2.2\,\%/K
+of our design values. With that alone, the penalty would rise from \FirstPiAC\% to \FirstPiACLibraryChiller\%.
+\end{itemize}
+The two air-cooled corrections pull in opposite directions and leave \PiAC\%. A reanalysis, which we tried first as a
+check, reproduces the humidity cycle but shares the too-cool nights (Table~\ref{tab:sets}): it would have confirmed
+the wrong air-cooled number. Only station observations settled it.
 
 \section{Limitations and next steps}\label{sec:lim}
 \begin{itemize}
-\item \textbf{Weather is a synthetic typical year.} It has no day-to-day variability and no measured humidity cycle.
-The first next step is to rerun with hourly airport observations (the code needs only a file swap); a first check on hourly reanalysis is in the addendum below. The monthly normals
-were entered from recollection of the published climate table rather than downloaded (see \texttt{data/README.md})
-and still have to be checked against the official source.
-\item \textbf{Air-cooled parameters are design values}, not fitted to a library of machines.
-\item \textbf{Energy only.} We ignore tank and battery cost, tower water use, pump and fan power, and the loss of
-chiller capacity on hot afternoons. Gulf wet-bulbs of 30$\C$ are at the edge of the library curves' range.
-\item \textbf{Scale.} Translating the result into GWh for Abu Dhabi needs hourly cooling-load and dispatch data that are
-not public; Eq.~\eqref{eq:clean} is written so that a utility can plug in its own numbers.
+\item \textbf{Two years, two stations.} The four station-years agree closely, but Dubai and Sharjah show that the
+humidity cycle is local. A plant should be assessed with the record of its own site, and a longer record would show
+how much the result varies from year to year.
+\item \textbf{Full-load curves.} We ignore part-load operation and the loss of chiller capacity on hot afternoons.
+Gulf wet-bulbs of 30$\C$ are at the edge of the library curves' range.
+\item \textbf{Fixed tower approach.} A real cooling tower's approach widens as the wet-bulb falls, so the condenser
+water follows the wet-bulb less than one for one. That would shrink the water-cooled bonus somewhat; it does not
+change its sign.
+\item \textbf{The tank.} $\eta_t=0.97$ assumes a well-stratified tank; with $\eta_t=0.90$ the water-cooled tank still
+beats the battery but the air-cooled one clearly does not (Table~\ref{tab:sens}).
+\item \textbf{Energy only.} We ignore tank and battery cost, the water a cooling tower evaporates, and pump and fan
+power.
+\item \textbf{Scale.} Translating the result into GWh for Abu Dhabi needs hourly cooling-load and dispatch data that
+are not public; Eq.~\eqref{eq:clean} is written so that a utility can plug in its own numbers.
 \end{itemize}
-
-\section*{Addendum: check on hourly reanalysis weather}
-After the analysis above was complete we reran the unchanged model on two actual years (2022 and 2023) of hourly
-dry-bulb, dew point and irradiance for the Abu Dhabi airport grid cell, taken from the Open-Meteo Historical Weather
-API (reanalysis, not a station record; files in \texttt{data/reanalysis/}, outputs in
-\texttt{results/reanalysis\_check/}).
-\begin{center}\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Cooling season (May--Oct) & Synthetic year & 2022 & 2023\\
-\midrule
-Air-cooled: Carnot penalty $\pi$ (\%) & 18.5 & 18.0 & 19.2\\
-Air-cooled: tank efficiency $\eta_t/(1+\pi)$ (\%) & 81.9 & 82.3 & 81.5\\
-Water-cooled: Carnot penalty $\pi$ (\%) & $+3.5$ & $-3.0$ & $-3.5$\\
-Water-cooled: tank efficiency $\eta_t/(1+\pi)$ (\%) & 93.7 & 100.1 & 100.6\\
-Dew point, solar hours minus night (K) & 0 (assumed) & $-6.0$ & $-6.5$\\
-\bottomrule
-\end{tabular}
-\end{center}
-The air-cooled result is confirmed to within one percentage point. For water-cooled plants the conclusion holds and
-becomes stronger, but the number changes: in the reanalysis the air is about 6~K drier (dew point) in the solar hours
-than at night, outside the $\pm3$~K range tested above, so the wet-bulb is slightly \emph{lower} when the sun shines
-and the penalty becomes a small bonus of about 3\%. The 3.5\% reported above should therefore be read as a
-conservative figure that follows from the constant-dew-point assumption (A6). The size and sign of the day--night
-humidity cycle depend on distance from the coast, so this check should be repeated on station observations.
 
 \section{Conclusion}
 The thermodynamic price of following the sun with cooling is one number, $\pi=\Delta T_{\text{sink}}/L_{\text{night}}$.
-In Abu Dhabi it is small (about 3.5\%) for water-cooled district-cooling plants and large (about 18.5\%) for air-cooled
-chillers. The practical message for the UAE is that chilled-water tanks at district-cooling plants are a better home for
-surplus solar electricity than batteries, whereas buildings with air-cooled chillers should store electricity, not cold;
-and that nobody should make ice.
+Measured in Abu Dhabi it is about \PiWC\% for water-cooled district-cooling plants, whose heat sink is the wet-bulb
+temperature and is coolest when the sun is up, and about \PiAC\% for air-cooled chillers, level with the losses of a
+battery. The practical message for the UAE is that chilled-water tanks at district-cooling plants are a better home
+for surplus solar electricity than batteries; that for air-cooled buildings the two stores tie on energy, so cost must
+decide; and that making ice gives away about \IceLossWC{} points of efficiency.
 
 \section*{Reproducibility}
-Everything is in the submission folder: \texttt{src/carnot\_penalty.py} (model), \texttt{scripts/} (weather generator
-and analysis), \texttt{tests/} (19 tests), \texttt{data/} (inputs with provenance) and \texttt{results/} (outputs).
-\texttt{bash reproduce.sh} regenerates every number and figure in about a minute; the run is deterministic (seed 2026).
+Everything is in the submission folder: \texttt{src/carnot\_penalty.py} (model), \texttt{scripts/} (weather builders
+and analysis), \texttt{tests/} (29 tests), \texttt{data/} (inputs with provenance) and \texttt{results/} (outputs).
+\texttt{bash reproduce.sh} regenerates every number, table and figure in under a minute; the run is deterministic
+(seed 2026) and needs no network access. The numbers in this text are not typed: the analysis writes them into
+\texttt{report/numbers.tex}, which this document reads.
 
 \section*{Use of tools and AI}
 Python (NumPy, pandas, Matplotlib, pytest) and \LaTeX. As the competition rules ask, we disclose that an AI assistant
 (Anthropic's Claude) was used in this work: for framing the problem and developing the model, for writing the code and
-its tests, for preparing the input data and the figures, and for drafting and typesetting the report.
+its tests, for finding and preparing the input data and the figures, for testing the first version against measured
+weather and a second chiller library (the corrections in Section~\ref{sec:changed}), and for drafting and typesetting
+the report.
 The work is set up so that its results do not have to be taken on trust. Every result and figure is regenerated by
-the open code in the submission folder; the model is checked by 19 unit tests against independent references (steam
-tables, psychrometric-chart points, the Stull formula and the second law); the closed form is checked against the
-hour-by-hour calculation; and the inputs that could not be verified against measured data are flagged in
-Section~\ref{sec:lim}. The team is responsible for the content and for defending it.
+the open code in the submission folder; the model is checked by 29 unit tests against independent references; the
+closed form is checked against the hour-by-hour calculation; and the weather and both chiller libraries are public
+data with their sources given in \texttt{data/README.md}. The team is responsible for the content and for defending
+it.
 
 \begin{thebibliography}{99}\small
 \bibitem{iea} International Energy Agency (2018). \emph{The Future of Cooling}. IEA, Paris.
 \bibitem{rtc} Masdar and EWEC (January 2025). Announcement of a 5.2~GW solar PV and 19~GWh battery project in Abu Dhabi to deliver 1~GW of round-the-clock power.
-\bibitem{ashrae} ASHRAE (2021). \emph{ASHRAE Handbook---Fundamentals}, Ch.~1 (Psychrometrics) and Ch.~14 (Climatic Design Information).
+\bibitem{wang2020} Wang, Y., Hua, Q., Sun, L. and Liu, Q. (2020). Thermodynamic efficiency comparison between thermal and electric storage for photovoltaic-driven chilling system. \emph{J. Energy Storage} 28, 101253.
+\bibitem{wangdennis} Wang, X. and Dennis, M. (2018). A comparison of battery and phase change coolth storage in a PV cooling system under different climates. \emph{Sustain. Cities Soc.} 36, 92--98.
+\bibitem{luerssen} Luerssen, C., Gandhi, O., Reindl, T., Sekhar, C. and Cheong, D. (2020). Life cycle cost analysis (LCCA) of PV-powered cooling systems with thermal energy and battery storage for off-grid applications. \emph{Appl. Energy} 273, 115145.
+\bibitem{alaali} Al-Aali, I. and Modi, V. (2022). Decarbonizing the electricity sector in Qatar using PV combined with ice thermal and battery storage. \emph{Energy Strategy Rev.} 44, 101014.
+\bibitem{ashrae} ASHRAE (2021). \emph{ASHRAE Handbook---Fundamentals}, Ch.~1 (Psychrometrics).
 \bibitem{magnus} Alduchov, O.~A. and Eskridge, R.~E. (1996). Improved Magnus form approximation of saturation vapor pressure. \emph{J. Appl. Meteorol.} 35, 601--609.
-\bibitem{eplus} U.S. Department of Energy. \emph{EnergyPlus}, dataset \texttt{datasets/Chillers.idf} and Engineering Reference. \url{https://github.com/NREL/EnergyPlus}
+\bibitem{atb} National Renewable Energy Laboratory (2024). \emph{Annual Technology Baseline}: utility-scale battery storage (85\% round-trip efficiency).
+\bibitem{openmeteo} Zippenfenig, P. (2023). \emph{Open-Meteo.com Weather API}. Zenodo, doi:10.5281/zenodo.7970649. Historical Weather API, \url{https://open-meteo.com}, accessed 13 November 2026.
+\bibitem{haurwitz} Haurwitz, B. (1945). Insolation in relation to cloudiness and cloud density. \emph{J. Meteorol.} 2, 154--166.
+\bibitem{eplus} U.S. Department of Energy. \emph{EnergyPlus}, datasets \texttt{Chillers.idf} and \texttt{AirCooledChiller.idf}, and Engineering Reference. \url{https://github.com/NREL/EnergyPlus}
 \bibitem{hydeman} Hydeman, M. and Gillespie, K.~L. (2002). Tools and techniques to calibrate electric chiller component models. \emph{ASHRAE Transactions} 108(1).
 \bibitem{gordon} Gordon, J.~M. and Ng, K.~C. (2000). \emph{Cool Thermodynamics}. Cambridge International Science Publishing.
-\bibitem{atb} National Renewable Energy Laboratory (2024). \emph{Annual Technology Baseline}: utility-scale battery storage (85\% round-trip efficiency).
-\bibitem{haurwitz} Haurwitz, B. (1945). Insolation in relation to cloudiness and cloud density. \emph{J. Meteorol.} 2, 154--166.
-\bibitem{cooper} Cooper, P.~I. (1969). The absorption of radiation in solar stills. \emph{Solar Energy} 12, 333--346.
+\bibitem{iem} Iowa Environmental Mesonet, Iowa State University. ASOS/METAR archive of airport weather observations, stations OMAA, OMAD, OMDB and OMSJ. \url{https://mesonet.agron.iastate.edu/request/download.phtml}, accessed 13 November 2026.
 \bibitem{stull} Stull, R. (2011). Wet-bulb temperature from relative humidity and air temperature. \emph{J. Appl. Meteorol. Climatol.} 50, 2267--2269.
 \end{thebibliography}
 \end{document}

@@ -1,0 +1,6 @@
+report/*.aux
+report/*.log
+report/*.out
+__pycache__/
+.pytest_cache/
+*.pyc

@@ -140,3 +140,63 @@ def test_library_reader_and_sensitivity():
     assert cp.library_cop_ratio(ch, ch["t_cond_ref"]) == pytest.approx(1.0)
     # EIRFT = 0.4 + 0.02*T  ->  s = 0.02 / (0.4 + 0.02*29.44)
     assert cp.library_sensitivity(ch) == pytest.approx(0.02 / (0.4 + 0.02 * 29.44), rel=1e-3)
+
+
+# ---------------- the data shipped with the submission ----------------
+DATA = Path(__file__).resolve().parents[1] / "data"
+STATION_YEARS = ["OMAA_2022", "OMAA_2023", "OMAD_2022", "OMAD_2023", "OMDB_2023", "OMSJ_2023"]
+
+
+def test_water_cooled_library_is_read():
+    lib = cp.load_chiller_library((DATA / "Chillers.idf").read_text(errors="ignore"))
+    assert len(lib) >= 150
+    assert {ch["condenser"] for ch in lib} == {"WaterCooled"}
+
+
+def test_air_cooled_library_is_read_and_every_machine_is_plausible():
+    lib = cp.load_chiller_library((DATA / "AirCooledChiller.idf").read_text(errors="ignore"))
+    assert len(lib) >= 100
+    assert {ch["condenser"] for ch in lib} == {"AirCooled"}
+    s = np.array([cp.library_sensitivity(ch) for ch in lib])
+    assert np.all((s > 0.01) & (s < 0.05))        # each machine loses between 1 and 5 % of COP per kelvin
+
+
+@pytest.mark.parametrize("name", STATION_YEARS)
+def test_station_weather_is_complete_physical_and_in_local_time(name):
+    import pandas as pd
+    wx = pd.read_csv(DATA / "station_hourly" / f"{name}.csv", comment="#")
+    assert len(wx) == 8760
+    assert list(wx.columns) == ["month", "day", "hour", "T_C", "Td_C", "ghi_Wm2"]
+    assert wx.T_C.between(0, 55).all()
+    assert (wx.Td_C <= wx.T_C + 1e-9).all() and (wx.ghi_Wm2 >= 0).all()
+    assert wx.ghi_Wm2[wx.hour.isin([0, 1, 2, 3])].max() == 0         # no sun in the small hours
+    assert wx.groupby("hour").ghi_Wm2.mean().idxmax() in (11, 12)    # sun highest around local noon
+    assert wx.groupby("hour").T_C.mean().idxmax() in (12, 13, 14, 15)   # hottest in the early afternoon
+
+
+def test_wet_bulb_two_term_response():
+    # the wet-bulb follows the dry-bulb weakly and the dew point strongly; the linear estimate is accurate
+    T, Td = 34.0, 21.5
+    a = float(cp.wet_bulb(T + 0.5, Td) - cp.wet_bulb(T - 0.5, Td))
+    b = float(cp.wet_bulb(T, Td + 0.5) - cp.wet_bulb(T, Td - 0.5))
+    assert 0.15 < a < 0.40 and 0.45 < b < 0.80
+    exact = float(cp.wet_bulb(T + 5.0, Td - 4.6) - cp.wet_bulb(T, Td))
+    assert exact == pytest.approx(a * 5.0 + b * (-4.6), abs=0.35)
+    assert exact < 0            # hotter but drier air has a LOWER wet-bulb temperature
+
+
+def test_two_term_coefficients_match_the_analytic_formula():
+    # a = 1 / (1 + (h_fg/c_p) Ws'(Twb)),  b = (1 - a) Ws'(Td) / Ws'(Twb)
+    T, Td = 34.0, 21.5
+    twb = float(cp.wet_bulb(T, Td))
+
+    def dWs(t, h=1e-3):
+        return float(cp.humidity_ratio(cp.p_sat(t + h)) - cp.humidity_ratio(cp.p_sat(t - h))) / (2 * h)
+
+    W = float(cp.humidity_ratio(cp.p_sat(Td)))
+    a_formula = 1.0 / (1.0 + (2501.0 - 2.326 * twb) / (1.006 + 1.86 * W) * dWs(twb))
+    b_formula = (1.0 - a_formula) * dWs(Td) / dWs(twb)
+    a = float(cp.wet_bulb(T + 0.5, Td) - cp.wet_bulb(T - 0.5, Td))
+    b = float(cp.wet_bulb(T, Td + 0.5) - cp.wet_bulb(T, Td - 0.5))
+    assert a == pytest.approx(a_formula, abs=0.02)
+    assert b == pytest.approx(b_formula, abs=0.03)

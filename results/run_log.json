@@ -4,21 +4,29 @@
   "eta_batt": 0.85,
   "tower_approach_K": 4.0,
   "seed": 2026,
-  "breakeven_penalty_pct": 14.117647058823524
+  "breakeven_penalty_pct": 14.117647058823524,
+  "base_case": [
+   "OMAA_2022",
+   "OMAA_2023",
+   "OMAD_2022",
+   "OMAD_2023"
+  ]
  },
  "calibration": {
   "wc": {
    "n": 157,
+   "n_total": 162,
    "s_median_pct": 2.2955857556309347,
    "s_q25_pct": 1.7325625991296383,
    "s_q75_pct": 2.993065273980046,
    "lift_K": 43.56186640150818,
    "lift_ci_lo": 40.967937769786,
    "lift_ci_hi": 47.551581501676104,
+   "lift_q25_K": 33.41056437002606,
+   "lift_q75_K": 57.71797223963828,
    "cop_ref": 6.48,
    "t_cond_ref": 23.89,
    "t_ref_sink": 19.89,
-   "eta_second_law": 1.0185130589275593,
    "rmse_class_median_pct": 2.6369294162378565,
    "rmse_class_p90_pct": 6.344109007928413,
    "rmse_own_median_pct": 1.2951662477351438,
@@ -28,167 +36,323 @@
    "n_test": 79,
    "lift_phys_K": 26.28,
    "s_ideal_pct": 3.8051750380517504,
-   "n_total": 162
+   "real_over_ideal_pct": -39.67200634201903,
+   "second_law_eff_min": 0.47770435405533157,
+   "second_law_eff_max": 0.6914169259134567
   },
   "ac": {
-   "lift_K": 45.0,
-   "cop_ref": 3.0,
+   "n": 111,
+   "n_total": 111,
+   "s_median_pct": 2.82899491437862,
+   "s_q25_pct": 2.6713485141397366,
+   "s_q75_pct": 2.890680919030241,
+   "lift_K": 35.34824311339022,
+   "lift_ci_lo": 35.124207584873666,
+   "lift_ci_hi": 36.39323603306445,
+   "lift_q25_K": 34.59392537642922,
+   "lift_q75_K": 37.43427690946695,
+   "cop_ref": 2.93,
+   "t_cond_ref": 35.0,
    "t_ref_sink": 35.0,
-   "s_median_pct": 2.2222222222222223,
-   "eta_second_law": 0.4871008479162909
+   "rmse_class_median_pct": 2.187262665181691,
+   "rmse_class_p90_pct": 2.8036323753318384,
+   "rmse_own_median_pct": 1.7336824566388778,
+   "lift_train_K": 36.13033668417,
+   "rmse_test_median_pct": 1.9288888842125138,
+   "n_train": 55,
+   "n_test": 56,
+   "lift_phys_K": 43.83,
+   "s_ideal_pct": 2.2815423226100844,
+   "real_over_ideal_pct": 23.99484709721491,
+   "second_law_eff_min": 0.4387880554770333,
+   "second_law_eff_max": 0.6085841896406948
   }
  },
  "weather": {
-  "n_hours": 8760,
-  "T_max": 42.69,
-  "T_min": 13.255,
-  "Twb_max": 31.087383692610942,
-  "Twb_p99": 30.625056318929214
+  "n_station_years": 4,
+  "n_days": 1460,
+  "n_season_days": 736,
+  "T_max": 47.0,
+  "T_min": 13.0,
+  "Twb_max": 32.38441693349316,
+  "Twb_p99": 30.44857077931662,
+  "gaps": {
+   "OMAA_2022": {
+    "missing_hours": 49,
+    "longest_gap_h": 4
+   },
+   "OMAA_2023": {
+    "missing_hours": 4,
+    "longest_gap_h": 1
+   },
+   "OMAD_2022": {
+    "missing_hours": 50,
+    "longest_gap_h": 4
+   },
+   "OMAD_2023": {
+    "missing_hours": 23,
+    "longest_gap_h": 3
+   },
+   "OMDB_2023": {
+    "missing_hours": 5,
+    "longest_gap_h": 1
+   },
+   "OMSJ_2023": {
+    "missing_hours": 12,
+    "longest_gap_h": 2
+   }
+  },
+  "max_missing_hours": 50,
+  "max_gap_h": 4
  },
  "damping": {
-  "T_mean": 32.61655276268116,
-  "Td_mean": 24.68574456521739,
-  "dTwb_dT": 0.2403688242590647,
-  "td_solar_minus_night_K": 5.792467954566034e-17
+  "T_mean": 34.15803328804348,
+  "Td_mean": 21.64178555253623,
+  "dTwb_dT": 0.2558550378531024,
+  "dTwb_dTd": 0.6195322916444965,
+  "dT_drybulb_K": 5.011158807157582,
+  "dT_dewpoint_K": -4.637539144162709,
+  "dT_wetbulb_K": -1.4090322365418955,
+  "dT_wetbulb_from_drybulb_K": 1.2821302262932104,
+  "dT_wetbulb_from_dewpoint_K": -2.87310525357418,
+  "dT_wetbulb_two_term_K": -1.5909750272809697,
+  "range_drybulb_K": 9.829483695652174,
+  "range_wetbulb_K": 4.9713348102536665
+ },
+ "first_pass": {
+  "pi_ac_pct": 18.509383978029785,
+  "pi_wc_pct": 3.540465618947228,
+  "dT_drybulb_K": 7.260734553157259,
+  "dT_wetbulb_K": 1.7422149726443865,
+  "pi_ac_measured_weather_design_chiller_pct": 11.945875067716248,
+  "pi_ac_normals_weather_library_chiller_pct": 24.586545414924245
+ },
+ "normals_check": {
+  "obs_tmax": [
+   24.74,
+   27.32,
+   31.21,
+   34.23,
+   37.98,
+   41.65,
+   41.68,
+   43.27,
+   40.98,
+   36.98,
+   32.07,
+   27.27
+  ],
+  "obs_tmin": [
+   17.02,
+   17.8,
+   20.89,
+   22.68,
+   26.31,
+   29.85,
+   32.35,
+   32.35,
+   30.27,
+   26.11,
+   23.18,
+   18.65
+  ],
+  "normals_tmax": [
+   24.1,
+   26.0,
+   29.5,
+   34.5,
+   39.3,
+   40.8,
+   42.1,
+   42.7,
+   40.4,
+   36.5,
+   31.1,
+   26.3
+  ],
+  "normals_tmin": [
+   13.2,
+   14.6,
+   17.5,
+   20.8,
+   23.8,
+   26.1,
+   28.8,
+   29.5,
+   26.6,
+   23.2,
+   18.7,
+   15.8
+  ],
+  "mean_tmax_obs_minus_normals_K": 0.507974385770526,
+  "mean_tmin_obs_minus_normals_K": 3.2387157105923623,
+  "min_tmin_obs_minus_normals_K": 1.8833333333333329,
+  "max_tmin_obs_minus_normals_K": 4.483333333333334,
+  "max_abs_tmax_obs_minus_normals_K": 1.7096774193548399,
+  "range_obs_season_K": 10.884498207885306,
+  "range_normals_season_K": 13.966666666666667
  },
  "results": {
   "ac": {
-   "pi_season_mean_pct": 18.509383978029785,
-   "pi_season_p10_pct": 16.526414010280927,
-   "pi_season_p90_pct": 21.487723554665813,
-   "pi_year_mean_pct": 19.81484562902202,
-   "eff_season_mean_pct": 81.86771301319564,
-   "eff_year_mean_pct": 80.97916210492258,
-   "share_days_beating_battery_season_pct": 0.0,
-   "share_days_beating_battery_year_pct": 0.0,
-   "swing_solar_minus_night_season_K": 7.260734553157259,
-   "lift_night_season_K": 39.40476282051282,
-   "closed_form_max_abs_err_pctpt": 6.938893903907228e-14,
-   "closed_form_r2": 1.0,
-   "cop_night_season": 3.4259817934933348,
-   "cop_solar_season": 2.8929296289076007,
-   "cop_design_min": 2.5621560068324163,
-   "clean_ratio_breakeven_season": 0.8185005840379916,
-   "route_grid_night": 291.8871320037987,
-   "route_battery": 343.396625886822,
-   "route_cold_tank": 356.3611865114172,
-   "breakeven_swing_K": 5.563025339366514,
-   "sink_diurnal_range_season_K": 13.863472826086994
+   "pi_season_mean_pct": 15.537645104667524,
+   "pi_season_p10_pct": 9.87759479085275,
+   "pi_season_p90_pct": 21.60481055572616,
+   "pi_year_mean_pct": 16.674179225732445,
+   "eff_season_mean_pct": 84.10491192192171,
+   "eff_year_mean_pct": 83.37811937737885,
+   "share_days_beating_battery_season_pct": 39.40217391304348,
+   "share_days_beating_battery_year_pct": 37.534246575342465,
+   "swing_solar_minus_night_season_K": 5.011158807157582,
+   "lift_night_season_K": 32.50512528428394,
+   "closed_form_max_abs_err_pctpt": 6.106226635438361e-14,
+   "cop_night_season": 3.186277592115884,
+   "cop_solar_season": 2.760677258701657,
+   "clean_ratio_breakeven_season": 0.8395532028727609,
+   "route_grid_night": 313.84585024054314,
+   "route_battery": 369.2304120476978,
+   "route_cold_tank": 373.4329436018141,
+   "breakeven_swing_K": 4.588958863663613,
+   "sink_diurnal_range_season_K": 9.829483695652174,
+   "pi_season_by_set_pct": [
+    16.851020544627655,
+    15.778133097928707,
+    15.08065871985734,
+    14.440768056256402
+   ],
+   "pi_season_min_pct": 14.440768056256402,
+   "pi_season_max_pct": 16.851020544627655,
+   "saving_vs_battery_pct": -1.1381867302884485
   },
   "wc": {
-   "pi_season_mean_pct": 3.5404656189472283,
-   "pi_season_p10_pct": 2.884974373097997,
-   "pi_season_p90_pct": 4.464697800738631,
-   "pi_year_mean_pct": 4.321272823580992,
-   "eff_season_mean_pct": 93.68614847768825,
-   "eff_year_mean_pct": 92.98942929082015,
+   "pi_season_mean_pct": -2.7805771910178243,
+   "pi_season_p10_pct": -6.934114664013613,
+   "pi_season_p90_pct": 0.913476497811605,
+   "pi_year_mean_pct": -1.3635994055287917,
+   "eff_season_mean_pct": 99.88133602617054,
+   "eff_year_mean_pct": 98.453379269511,
    "share_days_beating_battery_season_pct": 100.0,
    "share_days_beating_battery_year_pct": 100.0,
-   "swing_solar_minus_night_season_K": 1.7422149726443865,
-   "lift_night_season_K": 49.55339751954562,
-   "closed_form_max_abs_err_pctpt": 4.579669976578771e-14,
-   "closed_form_r2": 0.9999999999999993,
-   "cop_night_season": 5.696499299981023,
-   "cop_solar_season": 5.503022199505886,
-   "cop_design_min": 5.154944485116107,
-   "clean_ratio_breakeven_season": 0.9368317924798827,
-   "route_grid_night": 175.54640970522567,
-   "route_battery": 206.5251878885008,
-   "route_cold_tank": 187.3384837778981,
-   "breakeven_swing_K": 6.995773767465261,
-   "sink_diurnal_range_season_K": 3.3347322973493476
-  }
+   "swing_solar_minus_night_season_K": -1.4090322365418955,
+   "lift_night_season_K": 49.63696016276137,
+   "closed_form_max_abs_err_pctpt": 5.4990734188464785e-14,
+   "cop_night_season": 5.686909378740436,
+   "cop_solar_season": 5.853058723850107,
+   "clean_ratio_breakeven_season": 0.997743014691485,
+   "route_grid_night": 175.84243626922094,
+   "route_battery": 206.87345443437758,
+   "route_cold_tank": 176.1348866791154,
+   "breakeven_swing_K": 7.007570846507485,
+   "sink_diurnal_range_season_K": 4.9713348102536665,
+   "pi_season_by_set_pct": [
+    -2.2672490603280497,
+    -2.9010283338908116,
+    -3.016688548294421,
+    -2.9373428215580146
+   ],
+   "pi_season_min_pct": -3.016688548294421,
+   "pi_season_max_pct": -2.2672490603280497,
+   "saving_vs_battery_pct": 14.858633186798153
+  },
+  "td_solar_minus_night_season_K": -4.637539144162709
  },
  "monte_carlo": {
   "wc": {
-   "wins": 0.9108,
-   "eff_p5": 0.8509305835786729,
-   "eff_p50": 0.9137174323628765,
-   "eff_p95": 0.9718344309219727,
-   "pi_p5": -0.40935016711859984,
-   "pi_p50": 3.163450688754039,
-   "pi_p95": 9.21442561746512
+   "wins": 1.0,
+   "eff_p5": 0.9277330088924467,
+   "eff_p50": 0.9726679320376608,
+   "eff_p95": 1.0185381822329944,
+   "pi_p5": -4.505811371837703,
+   "pi_p50": -2.739499425854994,
+   "pi_p95": -1.228339052951257
   },
   "ac": {
-   "wins": 0.21045,
-   "eff_p5": 0.6793292128229548,
-   "eff_p50": 0.7983324423267149,
-   "eff_p95": 0.8883302894129872,
-   "pi_p5": 7.224017623647228,
-   "pi_p50": 18.173962451980863,
-   "pi_p95": 37.8951617711984
+   "wins": 0.24545,
+   "eff_p5": 0.7819758102522376,
+   "eff_p50": 0.8211029298969659,
+   "eff_p95": 0.8612705264547837,
+   "pi_p5": 12.405561540923246,
+   "pi_p50": 15.17495037965148,
+   "pi_p95": 17.419895057090336
   },
   "n": 20000
  },
  "sensitivity": {
   "ac": {
-   "base": 81.86771301319564,
-   "Lift $L_0$ $-25\\%$ / $+25\\%$": [
-    77.02530227457494,
-    84.81758346063302
-   ],
-   "Afternoon dew point 3 K higher / 3 K lower": [
-    81.86771301319564,
-    81.86771301319564
-   ],
-   "Daily temperature range x1.2 / x0.8": [
-    79.15382656897229,
-    84.67830460760884
+   "base": 84.10491192192171,
+   "Effective lift: lower / upper quartile of the machines": [
+    83.84001604303182,
+    84.78458921563126
    ],
    "Tank efficiency 0.90 / 0.99": [
-    75.95973372358358,
-    83.55570709594194
+    78.03548528838095,
+    85.83903381721906
+   ],
+   "Station: airport / island": [
+    83.54868478606816,
+    84.66113905777524
+   ],
+   "Year: 2022 / 2023": [
+    83.82250596868627,
+    84.38731787515712
+   ],
+   "Solar weights: reanalysis / clear-sky model": [
+    84.10491192192171,
+    84.12261140617795
    ],
    "Night load: uniform / degree-hour weighted": [
-    81.86771301319564,
-    83.46841641347108
+    84.10491192192171,
+    84.49627162347169
    ],
    "Charging window: solar-weighted / flat 09-15 h": [
-    81.86771301319564,
-    81.03471395116435
+    84.10491192192171,
+    82.88350584749075
    ],
    "Colder charging water: 0 K / 2 K": [
-    81.86771301319564,
-    77.9315877361671
+    84.10491192192171,
+    79.24658691195525
    ],
    "Ice storage (evaporator 12 K colder)": [
-    81.86771301319564,
-    62.28640928423791
+    84.10491192192171,
+    60.88745198911778
    ]
   },
   "wc": {
-   "base": 93.68614847768825,
-   "Lift $L_0$ $-25\\%$ / $+25\\%$": [
-    92.78397387507317,
-    94.26992764781794
-   ],
-   "Afternoon dew point 3 K higher / 3 K lower": [
-    89.54833638951222,
-    97.57266582693967
-   ],
-   "Daily temperature range x1.2 / x0.8": [
-    93.01866644675634,
-    94.33610271821627
+   "base": 99.88133602617054,
+   "Effective lift: lower / upper quartile of the machines": [
+    100.66910081177072,
+    99.21809868863339
    ],
    "Tank efficiency 0.90 / 0.99": [
-    86.92529240197878,
-    95.61782164217668
+    92.67340456036443,
+    101.94074501640087
+   ],
+   "Station: airport / island": [
+    99.68392909116604,
+    100.07874296117507
+   ],
+   "Year: 2022 / 2023": [
+    99.74996747523014,
+    100.01270457711095
+   ],
+   "Solar weights: reanalysis / clear-sky model": [
+    99.88133602617054,
+    99.70134559232125
    ],
    "Night load: uniform / degree-hour weighted": [
-    93.68614847768825,
-    94.05485261982072
+    99.88133602617054,
+    99.94378743422922
    ],
    "Charging window: solar-weighted / flat 09-15 h": [
-    93.68614847768825,
-    93.47007841928651
+    99.88133602617054,
+    100.2904410280636
    ],
    "Colder charging water: 0 K / 2 K": [
-    93.68614847768825,
-    89.5154608336326
+    99.88133602617054,
+    95.19904163810375
    ],
    "Ice storage (evaporator 12 K colder)": [
-    93.68614847768825,
-    72.62289347910888
+    99.88133602617054,
+    76.47270417350688
    ]
   }
  }
