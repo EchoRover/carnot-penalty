@@ -259,7 +259,7 @@ and the library reader on a hand-made file with a known answer.
 \section{Limitations and next steps}\label{sec:lim}
 \begin{itemize}
 \item \textbf{Weather is a synthetic typical year.} It has no day-to-day variability and no measured humidity cycle.
-The first next step is to rerun with hourly airport observations (the code needs only a file swap). The monthly normals
+The first next step is to rerun with hourly airport observations (the code needs only a file swap); a first check on hourly reanalysis is in the addendum below. The monthly normals
 were entered from recollection of the published climate table rather than downloaded (see \texttt{data/README.md})
 and still have to be checked against the official source.
 \item \textbf{Air-cooled parameters are design values}, not fitted to a library of machines.
@@ -268,6 +268,31 @@ chiller capacity on hot afternoons. Gulf wet-bulbs of 30$\C$ are at the edge of 
 \item \textbf{Scale.} Translating the result into GWh for Abu Dhabi needs hourly cooling-load and dispatch data that are
 not public; Eq.~\eqref{eq:clean} is written so that a utility can plug in its own numbers.
 \end{itemize}
+
+\section*{Addendum: check on hourly reanalysis weather}
+After the analysis above was complete we reran the unchanged model on two actual years (2022 and 2023) of hourly
+dry-bulb, dew point and irradiance for the Abu Dhabi airport grid cell, taken from the Open-Meteo Historical Weather
+API (reanalysis, not a station record; files in \texttt{data/reanalysis/}, outputs in
+\texttt{results/reanalysis\_check/}).
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Cooling season (May--Oct) & Synthetic year & 2022 & 2023\\
+\midrule
+Air-cooled: Carnot penalty $\pi$ (\%) & 18.5 & 18.0 & 19.2\\
+Air-cooled: tank efficiency $\eta_t/(1+\pi)$ (\%) & 81.9 & 82.3 & 81.5\\
+Water-cooled: Carnot penalty $\pi$ (\%) & $+3.5$ & $-3.0$ & $-3.5$\\
+Water-cooled: tank efficiency $\eta_t/(1+\pi)$ (\%) & 93.7 & 100.1 & 100.6\\
+Dew point, solar hours minus night (K) & 0 (assumed) & $-6.0$ & $-6.5$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The air-cooled result is confirmed to within one percentage point. For water-cooled plants the conclusion holds and
+becomes stronger, but the number changes: in the reanalysis the air is about 6~K drier (dew point) in the solar hours
+than at night, outside the $\pm3$~K range tested above, so the wet-bulb is slightly \emph{lower} when the sun shines
+and the penalty becomes a small bonus of about 3\%. The 3.5\% reported above should therefore be read as a
+conservative figure that follows from the constant-dew-point assumption (A6). The size and sign of the day--night
+humidity cycle depend on distance from the coast, so this check should be repeated on station observations.
 
 \section{Conclusion}
 The thermodynamic price of following the sun with cooling is one number, $\pi=\Delta T_{\text{sink}}/L_{\text{night}}$.
